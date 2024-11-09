@@ -13,7 +13,7 @@
     "dev": "concurrently --kill-others --names client,worker --prefix-colors blue,red yarn:dev:client yarn:dev:worker",
     "dev:client": "vite",
     "dev:worker": "wrangler dev",
-    "build": "tsc && vite build",
+    "build": "tsc && TLDRAW_WORKER_URL=https://tldraw-worker.darrin-f1a.workers.dev vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
