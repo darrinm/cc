@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
 	}
 
 	return {
+		base: process.env.NODE_ENV === 'production' ? '/cc/' : '/',
 		plugins: [react()],
 		define: {
 			'process.env.TLDRAW_WORKER_URL':
