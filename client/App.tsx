@@ -1,8 +1,9 @@
 import { useSync } from '@tldraw/sync'
-import { TLComponents, Tldraw } from 'tldraw'
+import { DEFAULT_EMBED_DEFINITIONS, TLComponents, Tldraw } from 'tldraw'
 import { getBookmarkPreview } from './getBookmarkPreview'
 import { multiplayerAssetStore } from './multiplayerAssetStore'
-import { ElementTree } from './LayerPanel'
+import { LayerPanel } from './LayerPanel'
+import { embeds } from './Embeds'
 
 // Where is our worker located? Configure this in `vite.config.ts`
 const WORKER_URL = process.env.TLDRAW_WORKER_URL
@@ -11,7 +12,7 @@ const WORKER_URL = process.env.TLDRAW_WORKER_URL
 const roomId = 'test-room'
 
 const components: TLComponents  = {
-  InFrontOfTheCanvas: ElementTree,
+  InFrontOfTheCanvas: LayerPanel,
 };
 
 function App() {
@@ -24,19 +25,20 @@ function App() {
 	})
 
 	return (
-    <div style={{ position: "fixed", inset: 0 }}>
+    <div style={{ position: 'fixed', inset: 0 }}>
       <Tldraw
+        embeds={[embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')]}
         //deepLinks
         maxAssetSize={100_000_000}
         components={components}
-        // [3]
         isShapeHidden={(s) => !!s.meta.hidden}
-        // we can pass the connected store into the Tldraw component which will handle
+
+				// we can pass the connected store into the Tldraw component which will handle
         // loading states & enable multiplayer UX like cursors & a presence menu
         store={store}
         onMount={(editor) => {
           // when the editor is ready, we need to register our bookmark unfurling service
-          editor.registerExternalAssetHandler("url", getBookmarkPreview);
+          editor.registerExternalAssetHandler('url', getBookmarkPreview);
         }}
       />
     </div>

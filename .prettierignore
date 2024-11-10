@@ -1,0 +1,48 @@
+projects/
+.vscode/
+.config
+.yarn
+.devenv/
+.direnv/
+js/**/.tsbuild/
+js/**/statoscope/
+js/.turbo/
+.devcontainer.json
+
+.cache
+.next
+dist
+build
+coverage
+
+# Import sorting fails here since it's TypeScript outside of js/
+go/cmd/backend/prompt_templates/*.ts
+go/cmd/backend/prompt_templates/**/*.ts
+go/cmd/player/public/sw.js
+js/apps/main/public/
+js/apps/sanity-studio/.sanity/
+
+e2e/tests/*-snapshots/*
+e2e/playwright-report
+e2e/test-results/*
+
+# vendored code
+js/packages/vsc/
+
+# Lottie
+*.lottie.json
+js/packages/frontend/lottie/
+
+# Github stuff
+gha-creds-*.json
+
+database.rules.json
+.storybook/
+
+js/src/frontend/workbench/__recordings__
+js/packages/frontend/proto/
+js/packages/typescript_fs/gen/types
+js/**/storybook-static/*
+js/apps/docs/src/pages/gen
+js/packages/protos/src/*.ts
+go/cmd/chat_server/ai_generated_code.json
