@@ -37,7 +37,7 @@ function getShapesWithText(editor: Editor, text: string): SearchResult[] {
 	shapes.forEach((shape) => {
 		const util = editor.getShapeUtil(shape)
 		const shapeText = util.getText(shape)
-		if (shapeText && shapeText.includes(text)) {
+		if (shapeText && shapeText.toLowerCase().includes(text.toLowerCase())) {
 			result.push({ text: shapeText, shape })
 		}
 	})
