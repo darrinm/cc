@@ -1,7 +1,8 @@
 import { capitalize } from 'lodash';
 import { useState } from 'react';
-import { Editor, TLShapeId, useEditor, useValue } from 'tldraw';
+import { EASINGS, Editor, TLShapeId, useEditor, useValue } from 'tldraw';
 import { VisibilityOff, VisibilityOn } from './icons';
+import { LAYER_PANEL_WIDTH } from './LayerPanel';
 
 const selectedBg = '#E8F4FE';
 const childSelectedBg = '#F3F9FE';
@@ -50,6 +51,24 @@ function ShapeItem({
               }
             } else {
               editor.select(shape);
+            }
+
+            // Bring the selection into view.
+            // TODO: do the minimum amount of movement necessary
+            const selectionBounds = editor.getSelectionRotatedScreenBounds();
+            const viewportBounds = editor.getViewportScreenBounds().clone();
+            viewportBounds.x += LAYER_PANEL_WIDTH;
+            viewportBounds.width -= LAYER_PANEL_WIDTH;
+            if (
+              selectionBounds &&
+              (selectionBounds.center.x < viewportBounds.x ||
+                selectionBounds.center.y < viewportBounds.y ||
+                selectionBounds.center.x > viewportBounds.maxX ||
+                selectionBounds.center.y > viewportBounds.maxY)
+            ) {
+              editor.zoomToSelection({
+                animation: { duration: 500, easing: EASINGS.easeInOutCubic },
+              });
             }
           }}
           style={{

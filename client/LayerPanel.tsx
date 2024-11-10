@@ -3,6 +3,8 @@ import 'tldraw/tldraw.css';
 import { ShapeList } from './ShapeList';
 import './layer-panel.css';
 
+export const LAYER_PANEL_WIDTH = 200;
+
 // TODO: only show the contents of the selected frame
 
 export function LayerPanel() {
