@@ -1,9 +1,11 @@
 import { useSync } from '@tldraw/sync'
-import { DEFAULT_EMBED_DEFINITIONS, TLComponents, Tldraw } from 'tldraw'
+import { atom, DEFAULT_EMBED_DEFINITIONS, TLComponents, Tldraw, TLUiOverrides } from 'tldraw'
 import { getBookmarkPreview } from './getBookmarkPreview'
 import { multiplayerAssetStore } from './multiplayerAssetStore'
 import { LayerPanel } from './LayerPanel'
 import { embeds } from './Embeds'
+import { TextSearchPanel } from './TextSearchPanel';
+import './text-search.css';
 
 // Where is our worker located? Configure this in `vite.config.ts`
 const WORKER_URL = process.env.TLDRAW_WORKER_URL
@@ -11,9 +13,31 @@ const WORKER_URL = process.env.TLDRAW_WORKER_URL
 // In this example, the room ID is hard-coded. You can set this however you like though.
 const roomId = 'test-room'
 
-const components: TLComponents  = {
+export const showSearch = atom('showSearch', false);
+
+const components: TLComponents = {
   InFrontOfTheCanvas: LayerPanel,
+  HelperButtons: TextSearchPanel,
 };
+
+const overrides: TLUiOverrides = {
+  actions(_editor, actions) {
+    return {
+      ...actions,
+      'text-search': {
+        id: 'text-search',
+        label: 'Search',
+        kbd: '$f',
+        onSelect() {
+          if (!showSearch.get()) {
+            showSearch.set(true);
+          }
+        },
+      },
+    };
+  },
+};
+
 
 function App() {
 	// Create a store connected to multiplayer.
@@ -31,6 +55,7 @@ function App() {
         //deepLinks
         maxAssetSize={100_000_000}
         components={components}
+        overrides={overrides}
         isShapeHidden={(s) => !!s.meta.hidden}
 
 				// we can pass the connected store into the Tldraw component which will handle
