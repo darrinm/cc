@@ -22,7 +22,7 @@ export function LayerPanel() {
 
   return (
     <div className='layer-panel'>
-      <div className='layer-panel-title'>Shapes</div>
+      <div className='layer-panel-title'>Elements</div>
       <ShapeList shapeIds={shapeIds} depth={0} />
     </div>
   );

@@ -3,19 +3,28 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Log the current URL and query params
 console.log(window.location.href)
-console.log(window.location.search)
 
 // Extract the pathname from the URL
-const pathname = window.location.pathname
-console.log(pathname)
+let pathname = window.location.pathname
+
+if (pathname[0] === '/') {
+	pathname = pathname.slice(1)
+}
+const segments = pathname.split('/')
+console.log('segments:', segments)
+if (segments[0] === 'cc') {
+	segments.shift()
+}
+const documentName = segments.shift()
+const elementName = segments.shift()
+console.log('path:', pathname, ', document:', documentName, ', element:', elementName)
 
 removeWatermark()
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<React.StrictMode>
-		<App />
+		<App document={documentName} element={elementName} />
 	</React.StrictMode>
 )
 

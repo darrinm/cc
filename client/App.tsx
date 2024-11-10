@@ -1,17 +1,22 @@
-import { useSync } from '@tldraw/sync'
-import { atom, DEFAULT_EMBED_DEFINITIONS, TLComponents, Tldraw, TLUiOverrides } from 'tldraw'
-import { getBookmarkPreview } from './getBookmarkPreview'
-import { multiplayerAssetStore } from './multiplayerAssetStore'
-import { LayerPanel } from './LayerPanel'
-import { embeds } from './Embeds'
+import { useSync } from '@tldraw/sync';
+import {
+  atom,
+  DEFAULT_EMBED_DEFINITIONS,
+  SerializedStore,
+  TLComponents,
+  Tldraw,
+  TLRecord,
+  TLUiOverrides,
+} from 'tldraw';
+import { getBookmarkPreview } from './getBookmarkPreview';
+import { multiplayerAssetStore } from './multiplayerAssetStore';
+import { LayerPanel } from './LayerPanel';
+import { embeds } from './Embeds';
 import { TextSearchPanel } from './TextSearchPanel';
 import './text-search.css';
 
 // Where is our worker located? Configure this in `vite.config.ts`
-const WORKER_URL = process.env.TLDRAW_WORKER_URL
-
-// In this example, the room ID is hard-coded. You can set this however you like though.
-const roomId = 'test-room'
+const WORKER_URL = process.env.TLDRAW_WORKER_URL;
 
 export const showSearch = atom('showSearch', false);
 
@@ -38,17 +43,35 @@ const overrides: TLUiOverrides = {
   },
 };
 
+function App({ document, element }: { document: string | undefined; element: string | undefined }) {
+  // Create a store connected to multiplayer.
+  const store = useSync({
+    // We need to know the websockets URI...
+    uri: `${WORKER_URL}/connect/${document}`,
+    // ...and how to handle static assets like images & videos
+    assets: multiplayerAssetStore,
+  });
 
-function App() {
-	// Create a store connected to multiplayer.
-	const store = useSync({
-		// We need to know the websockets URI...
-		uri: `${WORKER_URL}/connect/${roomId}`,
-		// ...and how to handle static assets like images & videos
-		assets: multiplayerAssetStore,
-	})
+  if (!document) {
+    return <div>No document</div>;
+  }
 
-	return (
+  // TODO: if element is not 'edit', set the initial state to the element
+  if (element !== 'edit') {
+    console.log(store);
+    if (store.status === 'synced-remote') {
+      const snapshot = store.store.getStoreSnapshot();
+      return <StorePreview store={snapshot.store} />;
+    } else {
+      return (
+        <div>
+          {store.status}: preview {element}
+        </div>
+      );
+    }
+  }
+
+  return (
     <div style={{ position: 'fixed', inset: 0 }}>
       <Tldraw
         embeds={[embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')]}
@@ -57,8 +80,7 @@ function App() {
         components={components}
         overrides={overrides}
         isShapeHidden={(s) => !!s.meta.hidden}
-
-				// we can pass the connected store into the Tldraw component which will handle
+        // we can pass the connected store into the Tldraw component which will handle
         // loading states & enable multiplayer UX like cursors & a presence menu
         store={store}
         onMount={(editor) => {
@@ -70,4 +92,12 @@ function App() {
   );
 }
 
-export default App
+function StorePreview({ store }: { store: SerializedStore<TLRecord> }) {
+  return (
+    <div>
+      <pre>{JSON.stringify(store, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default App;
