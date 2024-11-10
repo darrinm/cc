@@ -15,8 +15,11 @@ export function LayerPanel() {
     () => editor.getSortedChildIdsForParent(editor.getCurrentPageId()),
     [editor],
   );
+  const isMobile = useValue('is mobile', () => editor.getViewportScreenBounds().width < 700, [
+    editor,
+  ]);
 
-  if (isFocusMode) {
+  if (isFocusMode || isMobile) {
     return null;
   }
 

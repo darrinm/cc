@@ -11,6 +11,7 @@
 .shape-tree {
 	display: flex;
 	flex-direction: column;
+	overflow-y: auto;
 }
 .shape-item {
 	display: flex;
