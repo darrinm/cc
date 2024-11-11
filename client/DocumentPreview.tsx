@@ -3,8 +3,8 @@ import { TLFrameShape, TLShapeId } from '@tldraw/tlschema';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Editor, Tldraw, TLImageExportOptions, TLRenderingShape, useEditor } from 'tldraw';
-import { CloseIcon } from './icons';
 import { EmbedShapeUtil } from './EmbedShapeUtil';
+import { CloseIcon } from './icons';
 
 export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -124,7 +124,8 @@ function getRenderingShapes(
   const shapeIdsToInclude = editor.getShapeAndDescendantIds(ids);
   const renderingShapes = editor
     .getRenderingShapes()
-    .filter(({ id }) => ids.length === 0 || shapeIdsToInclude.has(id));
+    .filter(({ id }) => ids.length === 0 || shapeIdsToInclude.has(id))
+    .filter(({ shape }) => !editor.isShapeOfType(shape, 'group'));
 
   // --- Common bounding box of all shapes
   let bbox: null | Box = null;

@@ -1,12 +1,61 @@
 import { capitalize } from 'lodash';
-import { useState } from 'react';
-import { EASINGS, Editor, TLShapeId, useEditor, useValue } from 'tldraw';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  EASINGS,
+  Editor,
+  SvgExportContext,
+  SvgExportDef,
+  TLShapeId,
+  useEditor,
+  useValue,
+} from 'tldraw';
 import { VisibilityOff, VisibilityOn } from './icons';
 import { LAYER_PANEL_WIDTH } from './LayerPanel';
 
 const selectedBg = '#E8F4FE';
 const childSelectedBg = '#F3F9FE';
 const childBg = '#00000006';
+
+function AsyncSVG({
+  x,
+  y,
+  width,
+  height,
+  elementOrPromise,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  elementOrPromise: React.ReactElement | Promise<React.ReactElement | null> | null;
+}) {
+  const [element, setElement] = useState<React.ReactElement | null>(null);
+
+  useEffect(() => {
+    if (elementOrPromise) {
+      if (elementOrPromise instanceof Promise) {
+        elementOrPromise.then(setElement);
+      } else {
+        setElement(elementOrPromise);
+      }
+    }
+  }, [elementOrPromise]);
+
+  if (element) {
+    return (
+      <svg
+        width={30}
+        height={30}
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox={`${x} ${y} ${width} ${height}`}
+      >
+        {element}
+      </svg>
+    );
+  }
+
+  return null;
+}
 
 function ShapeItem({
   shapeId,
@@ -21,6 +70,15 @@ function ShapeItem({
 }) {
   const editor = useEditor();
 
+  const exportContext = useMemo(
+    (): SvgExportContext => ({
+      isDarkMode: editor.user.getIsDarkMode(),
+      waitUntil: (promise) => promise,
+      addExportDef: (def: SvgExportDef) => def,
+    }),
+    [editor.user.getIsDarkMode()],
+  );
+
   const shape = useValue('shape', () => editor.getShape(shapeId), [editor]);
   const children = useValue('children', () => editor.getSortedChildIdsForParent(shapeId), [editor]);
   const isHidden = useValue('isHidden', () => editor.isShapeHidden(shapeId), [editor]);
@@ -32,6 +90,10 @@ function ShapeItem({
   const [isEditingName, setIsEditingName] = useState(false);
 
   if (!shape) return null;
+
+  const util = editor.getShapeUtil(shape);
+  const svgContent = util?.toSvg?.(shape, exportContext) ?? null;
+  const bounds = util?.getGeometry(shape)?.bounds;
 
   return (
     <>
@@ -83,6 +145,13 @@ function ShapeItem({
               : undefined,
           }}
         >
+          <AsyncSVG
+            elementOrPromise={svgContent}
+            x={bounds?.x}
+            y={bounds?.y}
+            width={bounds?.width}
+            height={bounds?.height}
+          />
           {isEditingName ? (
             <input
               autoFocus
@@ -142,7 +211,7 @@ export function ShapeList({
 }) {
   if (!shapeIds.length) return null;
   return (
-    <div className='shape-tree'>
+    <div className='shape-list'>
       {shapeIds.map((shapeId) => (
         <ShapeItem
           key={shapeId}
@@ -159,7 +228,9 @@ export function ShapeList({
 function getShapeName(editor: Editor, shapeId: TLShapeId) {
   const shape = editor.getShape(shapeId);
   if (!shape) return 'Unknown shape';
-  let text = editor.getShapeUtil(shape).getText(shape);
+
+  const util = editor.getShapeUtil(shape);
+  let text = util?.getText(shape);
   if (text) {
     text = `"${text}"`;
   }

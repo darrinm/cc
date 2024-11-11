@@ -1,24 +1,37 @@
 import { useSync } from '@tldraw/sync';
+import { createContext, useCallback, useContext, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   atom,
   DEFAULT_EMBED_DEFINITIONS,
+  DefaultMainMenu,
   Editor,
+  EditSubmenu,
+  EmbedShapeUtil as EmbedShapeUtilOG,
+  ExportFileContentSubMenu,
+  ExtrasGroup,
+  PreferencesGroup,
   TLComponents,
   Tldraw,
+  TldrawUiMenuActionCheckboxItem,
+  TldrawUiMenuActionItem,
+  TldrawUiMenuGroup,
+  TldrawUiMenuSubmenu,
   TLUiOverrides,
+  useValue,
+  ZoomTo100MenuItem,
+  ZoomToFitMenuItem,
+  ZoomToSelectionMenuItem,
 } from 'tldraw';
-import { getBookmarkPreview } from './getBookmarkPreview';
-import { multiplayerAssetStore } from './multiplayerAssetStore';
-import { LayerPanel } from './LayerPanel';
-import { embeds } from './Embeds';
-import { TextSearchPanel } from './TextSearchPanel';
-import './text-search.css';
-import { DocumentPreview, Document } from './DocumentPreview';
-import { PlayIcon } from './icons';
-import { createContext, useCallback, useContext, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { Document, DocumentPreview } from './DocumentPreview';
 import { EmbedShapeUtil } from './EmbedShapeUtil';
-import { EmbedShapeUtil as EmbedShapeUtilOG } from 'tldraw';
+import { embeds } from './Embeds';
+import { LayerPanel } from './LayerPanel';
+import { TextSearchPanel } from './TextSearchPanel';
+import { getBookmarkPreview } from './getBookmarkPreview';
+import { PlayIcon } from './icons';
+import { multiplayerAssetStore } from './multiplayerAssetStore';
+import './text-search.css';
 
 // Rename the original EmbedShapeUtil so we can use our hacked version that doesn't disable pointer events.
 (EmbedShapeUtilOG as any).type = 'embed-og';
@@ -35,6 +48,7 @@ const components: TLComponents = {
   InFrontOfTheCanvas: LayerPanel,
   HelperButtons: TextSearchPanel,
   SharePanel: ShareZone,
+  MainMenu: MainMenu,
 };
 
 const overrides: TLUiOverrides = {
@@ -50,6 +64,18 @@ const overrides: TLUiOverrides = {
             showSearch.set(true);
           }
         },
+      },
+      'toggle-layer-panel': {
+        id: 'toggle-layer-panel',
+        label: {
+          default: 'Layer Panel', // TODO: 'action.toggle-layer-panel',
+          menu: 'Layer Panel', // TODO: 'action.toggle-layer-panel.menu',
+        },
+        kbd: '$l',
+        onSelect() {
+          showLayerPanel.set(!showLayerPanel.get());
+        },
+        checkbox: true,
       },
     };
   },
@@ -151,6 +177,38 @@ function ShareZone() {
         <PlayIcon fill='black' />
       </button>
     </div>
+  );
+}
+
+export function ToggleLayerPanelItem() {
+  const checked = useValue(showLayerPanel);
+  return <TldrawUiMenuActionCheckboxItem actionId='toggle-layer-panel' checked={checked} />;
+}
+
+function ViewSubmenu() {
+  return (
+    <TldrawUiMenuSubmenu id='view' label='menu.view'>
+      <TldrawUiMenuGroup id='view-actions'>
+        <ToggleLayerPanelItem />
+        <TldrawUiMenuActionItem actionId='zoom-in' />
+        <TldrawUiMenuActionItem actionId='zoom-out' />
+        <ZoomTo100MenuItem />
+        <ZoomToFitMenuItem />
+        <ZoomToSelectionMenuItem />
+      </TldrawUiMenuGroup>
+    </TldrawUiMenuSubmenu>
+  );
+}
+
+function MainMenu() {
+  return (
+    <DefaultMainMenu>
+      <EditSubmenu />
+      <ViewSubmenu />
+      <ExportFileContentSubMenu />
+      <ExtrasGroup />
+      <PreferencesGroup />
+    </DefaultMainMenu>
   );
 }
 
