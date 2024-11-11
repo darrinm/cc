@@ -20,3 +20,26 @@ export function VisibilityOn({ fill = defaultFill }: { fill?: string }) {
     </svg>
   );
 }
+
+export function PlayIcon({ fill = defaultFill }: { fill?: string }) {
+  return (
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill={fill}>
+      <path d='M5 3L19 12 5 21 5 3z' />
+    </svg>
+  );
+}
+
+export function CloseIcon({ fill = defaultFill }: { fill?: string }) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      viewBox='0 0 24 24'
+      fill={fill}
+      strokeWidth={2}
+      stroke={fill}
+    >
+      <path d='M18 6L6 18' />
+      <path d='M6 6L18 18' />
+    </svg>
+  );
+}

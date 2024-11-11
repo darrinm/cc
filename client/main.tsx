@@ -12,7 +12,7 @@ if (pathname[0] === '/') {
   pathname = pathname.slice(1);
 }
 const segments = pathname.split('/');
-console.log('segments:', segments);
+//console.log('segments:', segments);
 if (segments[0] === 'cc') {
   segments.shift();
 }
@@ -24,7 +24,7 @@ removeWatermark();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App document={documentName} element={elementName} />
+    <App documentName={documentName} element={elementName} />
   </React.StrictMode>,
 );
 

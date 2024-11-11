@@ -3,6 +3,7 @@ import { TLFrameShape, TLShapeId } from '@tldraw/tlschema';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Editor, Tldraw, TLImageExportOptions, TLRenderingShape, useEditor } from 'tldraw';
+import { CloseIcon } from './icons';
 
 export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -26,7 +27,7 @@ export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   );
 }
 
-function Document({ editor }: { editor: Editor }) {
+export function Document({ editor, onClose }: { editor: Editor; onClose?: () => void }) {
   const ids = editor.getSelectedShapeIds();
   const result = getRenderingShapes(editor, ids);
   if (!result) return <div>No shapes</div>;
@@ -34,7 +35,34 @@ function Document({ editor }: { editor: Editor }) {
   const { renderingShapes } = result;
   console.log(renderingShapes);
 
-  return <RenderingShapes renderingShapes={renderingShapes} />;
+  return (
+    <>
+      {onClose && (
+        <button
+          className='close-button'
+          style={{
+            zIndex: 1000,
+            position: 'absolute',
+            padding: 0,
+            top: '0px',
+            right: '0px',
+            border: 'none',
+            cursor: 'pointer',
+            height: 32,
+            width: 32,
+            pointerEvents: 'auto',
+          }}
+          onClick={(ev) => {
+            onClose?.();
+            ev.stopPropagation();
+          }}
+        >
+          <CloseIcon fill='black' />
+        </button>
+      )}
+      <RenderingShapes renderingShapes={renderingShapes} />
+    </>
+  );
 }
 
 function RenderingShapes({ renderingShapes }: { renderingShapes: TLRenderingShape[] }) {
@@ -43,7 +71,7 @@ function RenderingShapes({ renderingShapes }: { renderingShapes: TLRenderingShap
       className='tl-container tl-theme__light tl-container__focused'
       data-tldraw='3.4.1'
       data-color-mode='light'
-      style={{ height: '100vh', width: '100%', position: 'relative' }}
+      style={{ height: '100vh', width: '100%', position: 'relative', overflow: 'auto' }}
     >
       {renderingShapes.map((s) => (
         <RenderingShape key={s.id} rshape={s} />
