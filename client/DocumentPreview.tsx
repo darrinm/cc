@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Editor, Tldraw, TLImageExportOptions, TLRenderingShape, useEditor } from 'tldraw';
 import { CloseIcon } from './icons';
+import { EmbedShapeUtil } from './EmbedShapeUtil';
 
 export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -12,6 +13,7 @@ export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
     <div>
       <div style={{ width: 0, height: 0, overflow: 'hidden' }}>
         <Tldraw
+          shapeUtils={[EmbedShapeUtil]}
           isShapeHidden={(s) => !!s.meta.hidden}
           store={store}
           onMount={(_editor) => {
