@@ -122,6 +122,14 @@ function RenderingShape({
   const width = Math.max(bounds.width, 1);
   const height = Math.max(bounds.height, 1);
 
+  const pageTransform = editor.getShapePageTransform(shape);
+  let pageTransformString = pageTransform!.toCssString();
+  if ('scale' in shape.props) {
+    if (shape.props.scale !== 1) {
+      pageTransformString = `${pageTransformString} scale(${shape.props.scale}, ${shape.props.scale})`;
+    }
+  }
+
   return (
     <div
       className='tl-shape'
@@ -130,7 +138,7 @@ function RenderingShape({
       data-shape-id={shape.id}
       style={{
         position: 'absolute',
-        transform: `translate(${x - pageBounds.x}px, ${y - pageBounds.y}px)`,
+        transform: pageTransformString, //`translate(${x - pageBounds.x}px, ${y - pageBounds.y}px)`,
         width,
         height,
         opacity,

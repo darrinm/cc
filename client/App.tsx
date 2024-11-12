@@ -17,6 +17,7 @@ import {
   TldrawUiMenuActionItem,
   TldrawUiMenuGroup,
   TldrawUiMenuSubmenu,
+  TLShape,
   TLUiOverrides,
   useValue,
   ZoomTo100MenuItem,
@@ -33,11 +34,14 @@ import { PlayIcon } from './icons';
 import { multiplayerAssetStore } from './multiplayerAssetStore';
 import './text-search.css';
 
+// Where is our Cloudflare Worker located? Configure this in `vite.config.ts`
+const WORKER_URL = process.env.TLDRAW_WORKER_URL;
+
 // Rename the original EmbedShapeUtil so we can use our hacked version that doesn't disable pointer events.
 (EmbedShapeUtilOG as any).type = 'embed-og';
 
-// Where is our Cloudflare Worker located? Configure this in `vite.config.ts`
-const WORKER_URL = process.env.TLDRAW_WORKER_URL;
+const customShapeUtils = [EmbedShapeUtil];
+const customEmbeds = [embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')];
 
 export const showSearch = atom('showSearch', false);
 export const showLayerPanel = atom('showLayerPanel', true);
@@ -100,6 +104,19 @@ function App({
     assets: multiplayerAssetStore,
   });
 
+  const onMount = useCallback(
+    (_editor: Editor) => {
+      if (!editor) {
+        setEditor(_editor);
+      }
+      // when the editor is ready, we need to register our bookmark unfurling service
+      _editor.registerExternalAssetHandler('url', getBookmarkPreview);
+    },
+    [editor],
+  );
+
+  const isShapeHidden = useCallback((s: TLShape) => !!s.meta.hidden, []);
+
   const onPreviewClick = useCallback(() => {
     setIsPreviewing(true);
   }, []);
@@ -121,20 +138,14 @@ function App({
             }}
           >
             <Tldraw
-              embeds={[embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')]}
-              shapeUtils={[EmbedShapeUtil]}
+              embeds={customEmbeds}
+              shapeUtils={customShapeUtils}
               maxAssetSize={100_000_000}
               components={components}
               overrides={overrides}
-              isShapeHidden={(s) => !!s.meta.hidden}
+              isShapeHidden={isShapeHidden}
               store={store}
-              onMount={(_editor) => {
-                if (!editor) {
-                  setEditor(_editor);
-                }
-                // when the editor is ready, we need to register our bookmark unfurling service
-                _editor.registerExternalAssetHandler('url', getBookmarkPreview);
-              }}
+              onMount={onMount}
             >
               {isPreviewing &&
                 editor &&
