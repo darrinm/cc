@@ -5,6 +5,7 @@ import {
   atom,
   DEFAULT_EMBED_DEFINITIONS,
   DefaultMainMenu,
+  DefaultSharePanel,
   Editor,
   EditSubmenu,
   EmbedShapeUtil as EmbedShapeUtilOG,
@@ -174,13 +175,16 @@ function ShareZone() {
     <div
       style={{
         width: '100%',
-        textAlign: 'right',
         minWidth: '80px',
+        display: 'flex',
+        justifyContent: 'flex-end',
       }}
     >
+      <DefaultSharePanel />
       <button
         className='preview-button'
         style={{
+          marginTop: '4px',
           height: '32px',
           width: '32px',
           pointerEvents: 'auto',
