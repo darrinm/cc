@@ -34,7 +34,7 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
   const pageBounds = editor.getCurrentPageBounds() ?? new Box();
 
   const { renderingShapes } = result;
-  console.log(renderingShapes);
+  console.log('renderingShapes', renderingShapes, ids);
 
   return (
     <>
@@ -47,13 +47,12 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
               position: 'absolute',
               top: '0px',
               right: '32px',
-              border: 'none',
               height: 32,
               width: 32,
               pointerEvents: 'auto',
             }}
             onClick={(ev) => {
-              // Open the current URL in an new tab but remove /edit from the end of the URL.
+              // Open the current URL (minus the /edit suffix) in an new tab.
               const url = new URL(window.location.href);
               url.pathname = url.pathname.replace(/\/edit$/, '');
               window.open(url.toString(), '_blank');
@@ -69,7 +68,6 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
               position: 'absolute',
               top: '0px',
               right: '0px',
-              border: 'none',
               height: 32,
               width: 32,
               pointerEvents: 'auto',

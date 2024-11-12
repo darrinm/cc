@@ -1,4 +1,3 @@
-import { capitalize } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import {
   EASINGS,
@@ -44,8 +43,7 @@ function AsyncSVG({
   if (element) {
     return (
       <svg
-        width={30}
-        height={30}
+        className='shape-thumbnail'
         xmlns='http://www.w3.org/2000/svg'
         viewBox={`${x} ${y} ${width} ${height}`}
       >
@@ -236,7 +234,7 @@ function getShapeName(editor: Editor, shapeId: TLShapeId) {
   }
 
   return (
-    // meta.name is the first choice, then the shape's text, then the capitalized shape type
-    (shape.meta.name as string) || text || capitalize(shape.type + ' shape')
+    // meta.name is the first choice, then the shape's text, then the shape type
+    (shape.meta.name as string) || text || shape.type
   );
 }

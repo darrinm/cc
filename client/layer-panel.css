@@ -30,8 +30,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 2px;
+  padding: 2px 2px;
   cursor: pointer;
+}
+
+.shape-thumbnail {
+  width: 24px;
+  height: 24px;
+  overflow: visible;
 }
 
 .shape-visibility-toggle {
@@ -50,7 +56,7 @@
 
 .layer-panel-title {
   padding: 10px;
-  font-size: small;
+  font-size: medium;
   font-weight: bolder;
 }
 
@@ -66,4 +72,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-wrap: nowrap;
+  flex-grow: 1;
+  font-size: 14px;
+  margin-left: 12px;
 }
