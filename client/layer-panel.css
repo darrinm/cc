@@ -3,15 +3,22 @@
   left: 0;
   top: 42px;
   width: 200px;
-  height: calc(100% - 42px);
-  background: white;
+  height: calc(100% - 42px - 50px);
   display: flex;
   flex-direction: column;
+  z-index: var(--layer-panels);
+  color: var(--color-text);
+  box-shadow: var(--shadow-2);
+  border-radius: var(--radius-3);
+  background-color: var(--color-panel);
+  margin: 8px;
+  margin-top: 4px;
+  touch-action: auto;
+  overscroll-behavior: none;
+  overflow: hidden;
 }
 
 .shape-tree {
-  display: flex;
-  flex-direction: column;
   overflow-y: auto;
 }
 
@@ -43,7 +50,7 @@
 
 .layer-panel-title {
   padding: 10px;
-  font-size: smaller;
+  font-size: small;
   font-weight: bolder;
 }
 

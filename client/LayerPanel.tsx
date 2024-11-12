@@ -34,7 +34,7 @@ export function LayerPanel() {
         <div className='layer-panel-title'>Elements</div>
         <button
           style={{
-            marginRight: 8,
+            marginRight: 6,
             marginTop: 4,
             padding: 0,
             border: 'none',
