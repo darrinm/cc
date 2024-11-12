@@ -40,7 +40,7 @@ const WORKER_URL = process.env.TLDRAW_WORKER_URL;
 // Rename the original EmbedShapeUtil so we can use our hacked version that doesn't disable pointer events.
 (EmbedShapeUtilOG as any).type = 'embed-og';
 
-const customShapeUtils = [EmbedShapeUtil];
+export const customShapeUtils = [EmbedShapeUtil];
 const customEmbeds = [embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')];
 
 export const showSearch = atom('showSearch', false);
@@ -121,6 +121,10 @@ function App({
     setIsPreviewing(true);
   }, []);
 
+  const onClose = useCallback(() => {
+    setIsPreviewing(false);
+  }, []);
+
   if (!documentName) {
     return <div>Need a document</div>;
   }
@@ -149,10 +153,7 @@ function App({
             >
               {isPreviewing &&
                 editor &&
-                createPortal(
-                  <Document editor={editor} onClose={() => setIsPreviewing(false)} />,
-                  document.body,
-                )}
+                createPortal(<Document editor={editor} onClose={onClose} />, document.body)}
             </Tldraw>
           </div>
         </editorContext.Provider>

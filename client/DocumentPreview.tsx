@@ -1,24 +1,31 @@
 import { RemoteTLStoreWithStatus } from '@tldraw/sync';
-import { TLFrameShape, TLShapeId } from '@tldraw/tlschema';
-import { useState } from 'react';
+import { TLFrameShape, TLShape, TLShapeId } from '@tldraw/tlschema';
+import { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Editor, Tldraw, TLImageExportOptions, TLRenderingShape, useEditor } from 'tldraw';
-import { EmbedShapeUtil } from './EmbedShapeUtil';
 import { CloseIcon, LinkIcon } from './icons';
+import { customShapeUtils } from './App';
 
 export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   const [editor, setEditor] = useState<Editor | null>(null);
 
+  const onMount = useCallback(
+    (_editor: Editor) => {
+      if (editor) return;
+      setEditor(_editor);
+    },
+    [editor],
+  );
+
+  const isShapeHidden = useCallback((s: TLShape) => !!s.meta.hidden, []);
+
   return (
     <div style={{ width: 0, height: 0, overflow: 'hidden' }}>
       <Tldraw
-        shapeUtils={[EmbedShapeUtil]}
-        isShapeHidden={(s) => !!s.meta.hidden}
+        shapeUtils={customShapeUtils}
+        isShapeHidden={isShapeHidden}
         store={store}
-        onMount={(_editor) => {
-          if (editor) return;
-          setEditor(_editor);
-        }}
+        onMount={onMount}
       >
         {editor && createPortal(<Document editor={editor} />, document.body)}
       </Tldraw>
@@ -31,8 +38,6 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
   const result = getRenderingShapes(editor, ids);
   if (!result) return <div>No shapes</div>;
 
-  const pageBounds = editor.getCurrentPageBounds() ?? new Box();
-
   const { renderingShapes } = result;
   console.log('renderingShapes', renderingShapes, ids);
 
@@ -43,7 +48,7 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
           <button
             className='link-button'
             style={{
-              zIndex: 1000,
+              zIndex: 1_000_000,
               position: 'absolute',
               top: '0px',
               right: '32px',
@@ -64,7 +69,7 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
           <button
             className='close-button'
             style={{
-              zIndex: 1000,
+              zIndex: 1_000_000,
               position: 'absolute',
               top: '0px',
               right: '0px',
@@ -81,18 +86,12 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
           </button>
         </>
       )}
-      <RenderingShapes renderingShapes={renderingShapes} pageBounds={pageBounds} />
+      <RenderingShapes renderingShapes={renderingShapes} />
     </>
   );
 }
 
-function RenderingShapes({
-  renderingShapes,
-  pageBounds,
-}: {
-  renderingShapes: TLRenderingShape[];
-  pageBounds: Box;
-}) {
+function RenderingShapes({ renderingShapes }: { renderingShapes: TLRenderingShape[] }) {
   return (
     <div
       className='tl-container tl-theme__light tl-container__focused'
@@ -101,22 +100,16 @@ function RenderingShapes({
       style={{ height: '100vh', width: '100%', position: 'relative', overflow: 'auto' }}
     >
       {renderingShapes.map((s) => (
-        <RenderingShape key={s.id} renderingShape={s} pageBounds={pageBounds} />
+        <RenderingShape key={s.id} renderingShape={s} />
       ))}
     </div>
   );
 }
 
-function RenderingShape({
-  renderingShape,
-  pageBounds,
-}: {
-  renderingShape: TLRenderingShape;
-  pageBounds: Box;
-}) {
+function RenderingShape({ renderingShape }: { renderingShape: TLRenderingShape }) {
   const editor = useEditor();
-  const { shape, util } = renderingShape;
-  const { x, y, opacity, index: zIndex } = shape;
+  const { shape, util, index: zIndex } = renderingShape;
+  const { opacity } = shape;
   const component = util.component(shape);
   const bounds = editor.getShapeGeometry(shape.id).bounds;
   const width = Math.max(bounds.width, 1);
@@ -138,7 +131,7 @@ function RenderingShape({
       data-shape-id={shape.id}
       style={{
         position: 'absolute',
-        transform: pageTransformString, //`translate(${x - pageBounds.x}px, ${y - pageBounds.y}px)`,
+        transform: pageTransformString,
         width,
         height,
         opacity,
