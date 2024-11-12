@@ -40,12 +40,17 @@ function AsyncSVG({
     }
   }, [elementOrPromise]);
 
+  const maxWidth = Math.max(width, 24);
+  const maxHeight = Math.max(height, 24);
+  const offsetX = Math.max(0, (maxWidth - width) / 2);
+  const offsetY = Math.max(0, (maxHeight - height) / 2);
+
   if (element) {
     return (
       <svg
         className='shape-thumbnail'
         xmlns='http://www.w3.org/2000/svg'
-        viewBox={`${x} ${y} ${width} ${height}`}
+        viewBox={`${x - offsetX} ${y - offsetY} ${maxWidth} ${maxHeight}`}
       >
         {element}
       </svg>
