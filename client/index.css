@@ -11,3 +11,24 @@ body {
 .tl-shape {
   pointer-events: auto !important;
 }
+
+.preview-button,
+.link-button,
+.close-button {
+  cursor: pointer;
+  background-color: transparent;
+  padding: 0;
+  border: none;
+}
+
+.preview-button:hover,
+.link-button:hover,
+.close-button:hover {
+  background-color: #e0e0e0;
+}
+
+.preview-button:active,
+.link-button:active,
+.close-button:active {
+  background-color: #c0c0c0;
+}

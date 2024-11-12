@@ -25,6 +25,8 @@ import {
 } from './defaultEmbedDefinitions';
 import { getRotatedBoxShadow } from './rotated-box-shadow';
 import { getEmbedInfo, TLEmbedResult } from 'tldraw';
+import { useContext } from 'react';
+import { documentContext } from './App';
 
 const getSandboxPermissions = (permissions: TLEmbedShapePermissions) => {
   return Object.entries(permissions)
@@ -104,9 +106,10 @@ export class EmbedShapeUtil extends BaseBoxShapeUtil<TLEmbedShape> {
   }
 
   override component(shape: TLEmbedShape) {
+    const { isViewing } = useContext(documentContext);
     const svgExport = useSvgExportContext();
     const { w, h, url } = shape.props;
-    const isEditing = useIsEditing(shape.id);
+    const isEditingThisShape = useIsEditing(shape.id);
 
     const embedInfo = this.getEmbedDefinition(url);
 
@@ -148,7 +151,7 @@ export class EmbedShapeUtil extends BaseBoxShapeUtil<TLEmbedShape> {
       );
     }
 
-    const isInteractive = true; //isEditing || isHoveringWhileEditingSameShape;
+    const isInteractive = isViewing || isEditingThisShape || isHoveringWhileEditingSameShape;
 
     // Prevent nested embedding of tldraw
     const isIframe =

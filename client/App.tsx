@@ -43,6 +43,7 @@ export const showSearch = atom('showSearch', false);
 export const showLayerPanel = atom('showLayerPanel', true);
 
 const editorContext = createContext({} as { onPreviewClick: () => void });
+export const documentContext = createContext({} as { isViewing: boolean });
 
 const components: TLComponents = {
   InFrontOfTheCanvas: LayerPanel,
@@ -109,43 +110,49 @@ function App({
 
   if (element === 'edit') {
     return (
-      <editorContext.Provider value={{ onPreviewClick }}>
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            height: isPreviewing ? 0 : undefined,
-            overflow: isPreviewing ? 'hidden' : undefined,
-          }}
-        >
-          <Tldraw
-            embeds={[embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')]}
-            shapeUtils={[EmbedShapeUtil]}
-            maxAssetSize={100_000_000}
-            components={components}
-            overrides={overrides}
-            isShapeHidden={(s) => !!s.meta.hidden}
-            store={store}
-            onMount={(_editor) => {
-              if (!editor) {
-                setEditor(_editor);
-              }
-              // when the editor is ready, we need to register our bookmark unfurling service
-              _editor.registerExternalAssetHandler('url', getBookmarkPreview);
+      <documentContext.Provider value={{ isViewing: isPreviewing }}>
+        <editorContext.Provider value={{ onPreviewClick }}>
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              height: isPreviewing ? 0 : undefined,
+              overflow: isPreviewing ? 'hidden' : undefined,
             }}
           >
-            {isPreviewing &&
-              editor &&
-              createPortal(
-                <Document editor={editor} onClose={() => setIsPreviewing(false)} />,
-                document.body,
-              )}
-          </Tldraw>
-        </div>
-      </editorContext.Provider>
+            <Tldraw
+              embeds={[embeds, ...DEFAULT_EMBED_DEFINITIONS.filter((d) => d.type !== 'tldraw')]}
+              shapeUtils={[EmbedShapeUtil]}
+              maxAssetSize={100_000_000}
+              components={components}
+              overrides={overrides}
+              isShapeHidden={(s) => !!s.meta.hidden}
+              store={store}
+              onMount={(_editor) => {
+                if (!editor) {
+                  setEditor(_editor);
+                }
+                // when the editor is ready, we need to register our bookmark unfurling service
+                _editor.registerExternalAssetHandler('url', getBookmarkPreview);
+              }}
+            >
+              {isPreviewing &&
+                editor &&
+                createPortal(
+                  <Document editor={editor} onClose={() => setIsPreviewing(false)} />,
+                  document.body,
+                )}
+            </Tldraw>
+          </div>
+        </editorContext.Provider>
+      </documentContext.Provider>
     );
   } else {
-    return <DocumentPreview store={store} />;
+    return (
+      <documentContext.Provider value={{ isViewing: true }}>
+        <DocumentPreview store={store} />
+      </documentContext.Provider>
+    );
   }
 }
 
@@ -162,9 +169,6 @@ function ShareZone() {
       <button
         className='preview-button'
         style={{
-          padding: 0,
-          border: 'none',
-          cursor: 'pointer',
           height: '32px',
           width: '32px',
           pointerEvents: 'auto',

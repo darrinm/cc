@@ -4,27 +4,24 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Editor, Tldraw, TLImageExportOptions, TLRenderingShape, useEditor } from 'tldraw';
 import { EmbedShapeUtil } from './EmbedShapeUtil';
-import { CloseIcon } from './icons';
+import { CloseIcon, LinkIcon } from './icons';
 
 export function DocumentPreview({ store }: { store: RemoteTLStoreWithStatus }) {
   const [editor, setEditor] = useState<Editor | null>(null);
 
   return (
-    <div>
-      <div style={{ width: 0, height: 0, overflow: 'hidden' }}>
-        <Tldraw
-          shapeUtils={[EmbedShapeUtil]}
-          isShapeHidden={(s) => !!s.meta.hidden}
-          store={store}
-          onMount={(_editor) => {
-            if (editor) return;
-            console.log('DocumentPreview onMount');
-            setEditor(_editor);
-          }}
-        >
-          {editor && createPortal(<Document editor={editor} />, document.body)}
-        </Tldraw>
-      </div>
+    <div style={{ width: 0, height: 0, overflow: 'hidden' }}>
+      <Tldraw
+        shapeUtils={[EmbedShapeUtil]}
+        isShapeHidden={(s) => !!s.meta.hidden}
+        store={store}
+        onMount={(_editor) => {
+          if (editor) return;
+          setEditor(_editor);
+        }}
+      >
+        {editor && createPortal(<Document editor={editor} />, document.body)}
+      </Tldraw>
     </div>
   );
 }
@@ -34,40 +31,70 @@ export function Document({ editor, onClose }: { editor: Editor; onClose?: () => 
   const result = getRenderingShapes(editor, ids);
   if (!result) return <div>No shapes</div>;
 
+  const pageBounds = editor.getCurrentPageBounds() ?? new Box();
+
   const { renderingShapes } = result;
   console.log(renderingShapes);
 
   return (
     <>
       {onClose && (
-        <button
-          className='close-button'
-          style={{
-            zIndex: 1000,
-            position: 'absolute',
-            padding: 0,
-            top: '0px',
-            right: '0px',
-            border: 'none',
-            cursor: 'pointer',
-            height: 32,
-            width: 32,
-            pointerEvents: 'auto',
-          }}
-          onClick={(ev) => {
-            onClose?.();
-            ev.stopPropagation();
-          }}
-        >
-          <CloseIcon fill='black' />
-        </button>
+        <>
+          <button
+            className='link-button'
+            style={{
+              zIndex: 1000,
+              position: 'absolute',
+              top: '0px',
+              right: '32px',
+              border: 'none',
+              height: 32,
+              width: 32,
+              pointerEvents: 'auto',
+            }}
+            onClick={(ev) => {
+              // Open the current URL in an new tab but remove /edit from the end of the URL.
+              const url = new URL(window.location.href);
+              url.pathname = url.pathname.replace(/\/edit$/, '');
+              window.open(url.toString(), '_blank');
+              ev.stopPropagation();
+            }}
+          >
+            <LinkIcon fill='black' />
+          </button>
+          <button
+            className='close-button'
+            style={{
+              zIndex: 1000,
+              position: 'absolute',
+              top: '0px',
+              right: '0px',
+              border: 'none',
+              height: 32,
+              width: 32,
+              pointerEvents: 'auto',
+            }}
+            onClick={(ev) => {
+              onClose?.();
+              ev.stopPropagation();
+            }}
+          >
+            <CloseIcon fill='black' />
+          </button>
+        </>
       )}
-      <RenderingShapes renderingShapes={renderingShapes} />
+      <RenderingShapes renderingShapes={renderingShapes} pageBounds={pageBounds} />
     </>
   );
 }
 
-function RenderingShapes({ renderingShapes }: { renderingShapes: TLRenderingShape[] }) {
+function RenderingShapes({
+  renderingShapes,
+  pageBounds,
+}: {
+  renderingShapes: TLRenderingShape[];
+  pageBounds: Box;
+}) {
   return (
     <div
       className='tl-container tl-theme__light tl-container__focused'
@@ -76,15 +103,21 @@ function RenderingShapes({ renderingShapes }: { renderingShapes: TLRenderingShap
       style={{ height: '100vh', width: '100%', position: 'relative', overflow: 'auto' }}
     >
       {renderingShapes.map((s) => (
-        <RenderingShape key={s.id} rshape={s} />
+        <RenderingShape key={s.id} renderingShape={s} pageBounds={pageBounds} />
       ))}
     </div>
   );
 }
 
-function RenderingShape({ rshape }: { rshape: TLRenderingShape }) {
+function RenderingShape({
+  renderingShape,
+  pageBounds,
+}: {
+  renderingShape: TLRenderingShape;
+  pageBounds: Box;
+}) {
   const editor = useEditor();
-  const { shape, util } = rshape;
+  const { shape, util } = renderingShape;
   const { x, y, opacity, index: zIndex } = shape;
   const component = util.component(shape);
   const bounds = editor.getShapeGeometry(shape.id).bounds;
@@ -99,7 +132,7 @@ function RenderingShape({ rshape }: { rshape: TLRenderingShape }) {
       data-shape-id={shape.id}
       style={{
         position: 'absolute',
-        transform: `translate(${x}px, ${y}px)`,
+        transform: `translate(${x - pageBounds.x}px, ${y - pageBounds.y}px)`,
         width,
         height,
         opacity,
