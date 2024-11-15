@@ -32,6 +32,7 @@ import { LayerPanel } from './LayerPanel';
 import { TextSearchPanel } from './TextSearchPanel';
 import { getBookmarkPreview } from './getBookmarkPreview';
 import { PlayIcon } from './icons';
+import { importHatchProject } from './importHatchProject';
 import { multiplayerAssetStore } from './multiplayerAssetStore';
 import './text-search.css';
 
@@ -58,7 +59,7 @@ const components: TLComponents = {
 };
 
 const overrides: TLUiOverrides = {
-  actions(_editor, actions) {
+  actions(editor, actions) {
     return {
       ...actions,
       'text-search': {
@@ -82,6 +83,13 @@ const overrides: TLUiOverrides = {
           showLayerPanel.set(!showLayerPanel.get());
         },
         checkbox: true,
+      },
+      'import-hatch-project': {
+        id: 'import-hatch-project',
+        label: 'Import Hatch Project',
+        onSelect: () => {
+          importHatchProject(editor);
+        },
       },
     };
   },
@@ -200,15 +208,20 @@ function ShareZone() {
   );
 }
 
-export function ToggleLayerPanelItem() {
+function ToggleLayerPanelItem() {
   const checked = useValue(showLayerPanel);
   return <TldrawUiMenuActionCheckboxItem actionId='toggle-layer-panel' checked={checked} />;
+}
+
+function ImportHatchProjectItem() {
+  return <TldrawUiMenuActionItem actionId='import-hatch-project' />;
 }
 
 function ViewSubmenu() {
   return (
     <TldrawUiMenuSubmenu id='view' label='menu.view'>
       <TldrawUiMenuGroup id='view-actions'>
+        <ImportHatchProjectItem />
         <ToggleLayerPanelItem />
         <TldrawUiMenuActionItem actionId='zoom-in' />
         <TldrawUiMenuActionItem actionId='zoom-out' />

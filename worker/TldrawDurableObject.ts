@@ -8,10 +8,11 @@ import {
 import { AutoRouter, IRequest, error } from 'itty-router';
 import throttle from 'lodash.throttle';
 import { Environment } from './types';
+import { customShapeSchemas } from './shapeSchemas';
 
 // add custom shapes and bindings here if needed:
 const schema = createTLSchema({
-  shapes: { ...defaultShapeSchemas },
+  shapes: { ...defaultShapeSchemas, ...customShapeSchemas },
   // bindings: { ...defaultBindingSchemas },
 });
 
