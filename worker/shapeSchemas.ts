@@ -47,11 +47,16 @@ const DefaultRadixRadiusStyle = StyleProp.defineEnum('tldraw:radix-radius', {
   values: ['none', 'small', 'medium', 'large', 'full'],
 });
 
-export const radixButtonShapeProps = {
+export const DefaultRadixColorStyle = StyleProp.define('hatch:radix-color', {
+  defaultValue: 'blue',
+  type: T.string,
+});
+
+const radixButtonShapeProps = {
   w: T.number,
   h: T.number,
   size: DefaultRadixSizeStyle,
-  color: T.string,
+  color: DefaultRadixColorStyle,
   fontFamily: T.string,
   variant: DefaultRadixVariantStyle,
   radius: DefaultRadixRadiusStyle,
