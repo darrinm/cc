@@ -32,19 +32,24 @@ export const speechBubbleShapeProps = {
   tail: vecModelValidator,
 };
 
-const DefaultRadixVariantStyle = StyleProp.defineEnum('tldraw:radix-variant', {
+export const DefaultRadixVariantStyle = StyleProp.defineEnum('hatch:radix-variant', {
   defaultValue: 'solid',
   values: ['classic', 'solid', 'soft', 'surface', 'outline', 'ghost'],
 });
 
-const DefaultRadixSizeStyle = StyleProp.defineEnum('tldraw:radix-size', {
+export const DefaultRadixSizeStyle = StyleProp.defineEnum('hatch:radix-size', {
   defaultValue: '2',
   values: ['1', '2', '3', '4'],
 });
 
-const DefaultRadixRadiusStyle = StyleProp.defineEnum('tldraw:radix-radius', {
-  defaultValue: 'small',
+export const DefaultRadixRadiusStyle = StyleProp.defineEnum('hatch:radix-radius', {
+  defaultValue: 'medium',
   values: ['none', 'small', 'medium', 'large', 'full'],
+});
+
+export const DefaultRadixFontFamilyStyle = StyleProp.define('hatch:radix-font-family', {
+  defaultValue: 'inter',
+  type: T.string,
 });
 
 export const DefaultRadixColorStyle = StyleProp.define('hatch:radix-color', {
@@ -57,7 +62,7 @@ const radixButtonShapeProps = {
   h: T.number,
   size: DefaultRadixSizeStyle,
   color: DefaultRadixColorStyle,
-  fontFamily: T.string,
+  fontFamily: DefaultRadixFontFamilyStyle,
   variant: DefaultRadixVariantStyle,
   radius: DefaultRadixRadiusStyle,
   highContrast: T.boolean,
