@@ -110,7 +110,7 @@ const shaderShapeProps = {
   fragmentShader: T.string.optional(),
   optimizeImages: T.boolean,
   uniformDescriptions: T.arrayOf(UD),
-  uniformValues: T.object({}).allowUnknownProperties().optional(),
+  uniformValues: T.jsonValue.optional() as T.Validator<Record<string, unknown>>,
 };
 
 export const customShapeSchemas = {
