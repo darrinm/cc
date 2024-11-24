@@ -106,9 +106,11 @@ const UD: T.ObjectValidator<UniformDescription> = T.object({
 const shaderShapeProps = {
   w: T.number,
   h: T.number,
+  backgroundColor: T.string.optional(),
   fragmentShader: T.string.optional(),
   optimizeImages: T.boolean,
   uniformDescriptions: T.arrayOf(UD),
+  uniformValues: T.object({}).allowUnknownProperties().optional(),
 };
 
 export const customShapeSchemas = {
